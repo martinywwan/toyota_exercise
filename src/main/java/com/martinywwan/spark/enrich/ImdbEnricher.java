@@ -1,8 +1,10 @@
 package com.martinywwan.spark.enrich;
 
+import com.martinywwan.configuration.AppProperties;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component

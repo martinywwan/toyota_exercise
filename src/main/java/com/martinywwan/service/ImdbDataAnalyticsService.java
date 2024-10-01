@@ -25,11 +25,10 @@ public class ImdbDataAnalyticsService {
     @Autowired
     private ImdbRepository imdbRepository;
 
-    /** Retrieve the top 10 movies that have a minimum of 500 votes.
+    /** Function to retrieve the top 10 titles that have a minimum of 500 votes.
      *
-     * @param titleBasicsDs dataset containing movie titles
-     * @param titleRatingsDs dataset containing ratings of movies
-     * @return top 10 rated movies
+     * @param titleWithRatingsDs dataset containing titles with ratings
+     * @return top 10 rated titles
      */
     public Dataset<Row> getTop10Titles(Dataset<Row> titleWithRatingsDs) {
         Dataset<Row> titleWithRatingDsCached = titleWithRatingsDs.cache();
@@ -48,22 +47,33 @@ public class ImdbDataAnalyticsService {
         return titleWithOverallRatings.orderBy(desc("overallRating")).limit(10);
     }
 
+    /** Function to get the most credited person by title.
+     * Given a set of titles, for each title, identify the individual with the most acknowledgments (i.e. most credited).
+     *
+     * @param titlesWithCreditedNames dataset of titles with credited persons
+     * @return A dataset of titles containing the most credited person for each title
+     */
     public Dataset<Row> getMostCreditedPersonByTitle(Dataset<Row> titlesWithCreditedNames){
         Dataset<Row> mostCreditPersonsByTitle = titlesWithCreditedNames
-                // Group by tconst (title) and primaryName (person)
+                // Count the occurrence of each primaryName for each tconst (titleId)
                 .groupBy("tconst", "primaryName")
-                // Count the occurrences of each primaryName (person) for each title
-                .agg(count("primaryName").alias("credits_count"))
-                // Use Window function to rank persons within each title based on their credits count
+                .agg(count("primaryName").alias("occurrenceCount"))
+                // Window function used to rank each person based on the title and occurrence count
                 .withColumn("rank", row_number().over(
-                        Window.partitionBy("tconst").orderBy(desc("credits_count"))
+                        Window.partitionBy("tconst").orderBy(desc("occurrenceCount"))
                 ))
-                // Filter only the top person (rank = 1) for each title
+                // filter rank==1 - person who is most credited per title
                 .filter(col("rank").equalTo(1))
-                .select("tconst", "primaryName", "credits_count");
+                .select("tconst", "primaryName", "occurrenceCount");
         return mostCreditPersonsByTitle;
     }
 
+    /**Method to obtain alternative names for specified titles
+     *
+     * @param titlesDs dataset of titles
+     * @param alternativeTitles dataset containing alternative names of titles
+     * @return
+     */
     public Dataset<Row> getAlternativeTitles(Dataset<Row> titlesDs, Dataset<Row> alternativeTitles){
         Dataset<Row> titlesReducedColsDs = titlesDs.drop("titleType", "isAdult", "startYear", "endYear",
                 "runtimeMinutes", "genres", "averageRating", "numVotes", "overallRating", "originalTitle");

@@ -1,5 +1,6 @@
 package com.martinywwan.spark.repository;
 
+import com.martinywwan.configuration.AppProperties;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -14,6 +15,9 @@ import static org.apache.spark.sql.types.DataTypes.*;
 public class ImdbRepository {
 
     @Autowired
+    private AppProperties appProperties;
+
+    @Autowired
     private SparkSession sparkSession;
 
     public Dataset<Row> getTitleRatingsDataset() {
@@ -21,7 +25,7 @@ public class ImdbRepository {
         schema = schema.add("tconst", StringType, false);
         schema = schema.add("averageRating", DoubleType, false);
         schema = schema.add("numVotes", IntegerType, false);
-        return sparkSession.read().schema(schema).option("delimiter", "\t").format("csv").option("header", "true").load("C:\\Users\\MW\\OneDrive\\Desktop\\files\\data_files_subset\\title.ratings.tsv");
+        return sparkSession.read().schema(schema).option("delimiter", "\t").format("csv").option("header", "true").load(appProperties.getDatasourceTitleRatingsPath());
     }
 
     public Dataset<Row> getTitleBasicsDataset() {
@@ -35,7 +39,7 @@ public class ImdbRepository {
         schema = schema.add("endYear", StringType, false);
         schema = schema.add("runtimeMinutes", IntegerType, false);
         schema = schema.add("genres", StringType, false);
-        return sparkSession.read().schema(schema).option("delimiter", "\t").format("csv").option("header", "true").load("C:\\Users\\MW\\OneDrive\\Desktop\\files\\data_files_subset\\title.basics.tsv");
+        return sparkSession.read().schema(schema).option("delimiter", "\t").format("csv").option("header", "true").load(appProperties.getDatasourceTitleBasicsPath());
     }
 
     public Dataset<Row> getTitlePrincipalsDataset() {
@@ -46,7 +50,7 @@ public class ImdbRepository {
         schema = schema.add("category", StringType, false);
         schema = schema.add("job", StringType, false);
         schema = schema.add("characters", StringType, false);
-        return sparkSession.read().schema(schema).option("delimiter", "\t").format("csv").option("header", "true").load("C:\\Users\\MW\\OneDrive\\Desktop\\files\\data_files_subset\\title.principals.tsv");
+        return sparkSession.read().schema(schema).option("delimiter", "\t").format("csv").option("header", "true").load(appProperties.getDatasourceTitlePrincipalsPath());
     }
 
     public Dataset<Row> getNamesDataset() {
@@ -58,7 +62,7 @@ public class ImdbRepository {
         schema = schema.add("primaryProfession", StringType, false);
         schema = schema.add("knownForTitles", StringType, false);
 
-        return sparkSession.read().schema(schema).option("delimiter", "\t").format("csv").option("header", "true").load("C:\\Users\\MW\\OneDrive\\Desktop\\files\\data_files\\name.basics.tsv");
+        return sparkSession.read().schema(schema).option("delimiter", "\t").format("csv").option("header", "true").load(appProperties.getDatasourceNameBasicsPath());
     }
 
 
@@ -72,7 +76,8 @@ public class ImdbRepository {
         schema = schema.add("types", StringType, false);
         schema = schema.add("attributes", StringType, false);
         schema = schema.add("isOriginalTitle", StringType, false);
-        return sparkSession.read().schema(schema).option("delimiter", "\t").format("csv").option("header", "true").load("C:\\Users\\MW\\OneDrive\\Desktop\\files\\data_files\\title.akas.tsv");
+
+        return sparkSession.read().schema(schema).option("delimiter", "\t").format("csv").option("header", "true").load(appProperties.getDatasourceTitleAkasPath());
     }
 
 }
