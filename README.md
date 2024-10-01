@@ -1,4 +1,4 @@
-# Spark Java Application
+# Toyota Exercise
 
 ## Overview
 This README provides instructions for running the ToyotaExercise in your local machine
