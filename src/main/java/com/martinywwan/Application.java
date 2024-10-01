@@ -1,7 +1,7 @@
 package com.martinywwan;
 
 
-import com.martinywwan.service.DataProcessingService;
+import com.martinywwan.service.ImdbDataAnalyticsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -19,7 +19,7 @@ import org.springframework.context.annotation.ComponentScan;
 public class Application {
 
     @Autowired
-    private DataProcessingService dataProcessingService;
+    private ImdbDataAnalyticsService dataProcessingService;
 
     public static void main(String[] args) {
         ApplicationContext ac = new AnnotationConfigApplicationContext(Application.class);

@@ -17,7 +17,6 @@ public class SparkConfiguration {
                 .appName("IMDB dataset processor")
                 .master("local[*]")
                 .getOrCreate();
-//        sparkSession.conf().set("spark.sql.crossJoin.enabled", "true");
         return sparkSession;
     }
 }
