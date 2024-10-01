@@ -5,7 +5,7 @@ This README provides instructions for running the ToyotaExercise in your local m
 
 ## Prerequisites
 Before running the application, ensure that you have the following installed:
-- **Java 8+ **
+- Java 8+
 - **Apache Spark**
 
 ## Building the Application
