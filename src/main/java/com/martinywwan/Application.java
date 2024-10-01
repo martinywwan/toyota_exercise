@@ -9,8 +9,8 @@ import org.springframework.context.annotation.ComponentScan;
 
 /**
  * Application to read IMDB data
- * The aim of the application is to:
- * 1. Retrieve the top 10 movies with a minimum of 500 votes with the ranking determined by:
+ * The application is used to:
+ * 1. Retrieve the top 10 titles with a minimum of 500 votes with the ranking determined by:
  * (numVotes/averageNumberOfVotes) * averageRating
  * 2. For these 10 movies, list the persons who are most often credited and list the
  * different titles of the 10 movies.

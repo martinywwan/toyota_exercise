@@ -25,7 +25,8 @@ public class ImdbDataAnalyticsService {
     @Autowired
     private ImdbRepository imdbRepository;
 
-    /** Function to retrieve the top 10 titles that have a minimum of 500 votes.
+    /**
+     * Function to retrieve the top 10 titles that have a minimum of 500 votes.
      *
      * @param titleWithRatingsDs dataset containing titles with ratings
      * @return top 10 rated titles
@@ -34,7 +35,7 @@ public class ImdbDataAnalyticsService {
         Dataset<Row> titleWithRatingDsCached = titleWithRatingsDs.cache();
 
         // Broadcast the variable avgNumOfVotes to all workers
-        Double avgNumOfVotes = titleWithRatingDsCached.groupBy().mean("numVotes").as("avgNumOfVotes").first().getDouble(0);
+        Double avgNumOfVotes = titleWithRatingDsCached.select(col("numVotes").cast("Double")).groupBy().mean("numVotes").as("avgNumOfVotes").first().getDouble(0);
         ClassTag<Double> classTagTest = scala.reflect.ClassTag$.MODULE$.apply(Double.class);
         Broadcast<Double> avgNumOfVotesBroadcast = sparkSession.sparkContext().broadcast(avgNumOfVotes, classTagTest);
 
@@ -47,13 +48,14 @@ public class ImdbDataAnalyticsService {
         return titleWithOverallRatings.orderBy(desc("overallRating")).limit(10);
     }
 
-    /** Function to get the most credited person by title.
+    /**
+     * Function to get the most credited person by title.
      * Given a set of titles, for each title, identify the individual with the most acknowledgments (i.e. most credited).
      *
      * @param titlesWithCreditedNames dataset of titles with credited persons
      * @return A dataset of titles containing the most credited person for each title
      */
-    public Dataset<Row> getMostCreditedPersonByTitle(Dataset<Row> titlesWithCreditedNames){
+    public Dataset<Row> getMostCreditedPersonByTitle(Dataset<Row> titlesWithCreditedNames) {
         Dataset<Row> mostCreditPersonsByTitle = titlesWithCreditedNames
                 // Count the occurrence of each primaryName for each tconst (titleId)
                 .groupBy("tconst", "primaryName")
@@ -68,13 +70,14 @@ public class ImdbDataAnalyticsService {
         return mostCreditPersonsByTitle;
     }
 
-    /**Method to obtain alternative names for specified titles
+    /**
+     * Method to obtain alternative names for specified titles
      *
-     * @param titlesDs dataset of titles
+     * @param titlesDs          dataset of titles
      * @param alternativeTitles dataset containing alternative names of titles
      * @return
      */
-    public Dataset<Row> getAlternativeTitles(Dataset<Row> titlesDs, Dataset<Row> alternativeTitles){
+    public Dataset<Row> getAlternativeTitles(Dataset<Row> titlesDs, Dataset<Row> alternativeTitles) {
         Dataset<Row> titlesReducedColsDs = titlesDs.drop("titleType", "isAdult", "startYear", "endYear",
                 "runtimeMinutes", "genres", "averageRating", "numVotes", "overallRating", "originalTitle");
         Dataset<Row> alternativeTitlesReducedColsDs = alternativeTitles.drop("ordering", "types", "attributes");
@@ -122,6 +125,7 @@ public class ImdbDataAnalyticsService {
         mostCreditedPersonsByTitle.show();
         // Limitation: The function above does not show all titles if the title did not exist within the principles
 
+        System.out.println("Alternative titles");
         Dataset<Row> alternativeTitlesDs = getAlternativeTitles(top10TitlesDs, titleAkasDs);
         alternativeTitlesDs.show();
 
