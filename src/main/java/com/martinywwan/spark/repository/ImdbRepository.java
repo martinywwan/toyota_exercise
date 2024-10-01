@@ -6,7 +6,6 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.StructType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import static org.apache.spark.sql.types.DataTypes.*;
@@ -61,7 +60,6 @@ public class ImdbRepository {
         schema = schema.add("deathYear", StringType, false);
         schema = schema.add("primaryProfession", StringType, false);
         schema = schema.add("knownForTitles", StringType, false);
-
         return sparkSession.read().schema(schema).option("delimiter", "\t").format("csv").option("header", "true").load(appProperties.getDatasourceNameBasicsPath());
     }
 
@@ -76,7 +74,6 @@ public class ImdbRepository {
         schema = schema.add("types", StringType, false);
         schema = schema.add("attributes", StringType, false);
         schema = schema.add("isOriginalTitle", StringType, false);
-
         return sparkSession.read().schema(schema).option("delimiter", "\t").format("csv").option("header", "true").load(appProperties.getDatasourceTitleAkasPath());
     }
 
