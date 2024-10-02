@@ -45,7 +45,9 @@ public class ImdbDataAnalyticsService {
                 .withColumn("overallRating", overallRatingDefinition);
         avgNumOfVotesBroadcast.unpersist();
 
-        return titleWithOverallRatings.orderBy(desc("overallRating")).limit(10);
+        var titleRankings = titleWithOverallRatings.withColumn("titleRanking", row_number().over(
+                Window.orderBy(desc("overallRating"))));
+        return titleRankings.filter(col("titleRanking").$less$eq(10));
     }
 
     /**
@@ -61,11 +63,11 @@ public class ImdbDataAnalyticsService {
                 .groupBy("tconst", "primaryName")
                 .agg(count("primaryName").alias("occurrenceCount"))
                 // Window function used to rank each person based on the title and occurrence count
-                .withColumn("rank", row_number().over(
+                .withColumn("row_number", row_number().over(
                         Window.partitionBy("tconst").orderBy(desc("occurrenceCount"))
                 ))
-                // filter rank==1 - person who is most credited per title
-                .filter(col("rank").equalTo(1))
+                // filter row_number==1 - person who is most credited per title
+                .filter(col("row_number").equalTo(1))
                 .select("tconst", "primaryName", "occurrenceCount");
         return mostCreditPersonsByTitle;
     }
@@ -99,7 +101,7 @@ public class ImdbDataAnalyticsService {
         Dataset<Row> top10TitlesDs = getTop10Titles(titleWithRatingsDs);
         System.out.println("Top 10 Titles");
         top10TitlesDs.show();
-
+        
         // Convert top 10 title id's to an array
         Object[] top10TitlesArr = top10TitlesDs.select("tconst")
                 .as(Encoders.STRING()) // Convert to a Dataset<String>
@@ -123,12 +125,10 @@ public class ImdbDataAnalyticsService {
         System.out.println("Most credited person by title");
         Dataset<Row> mostCreditedPersonsByTitle = getMostCreditedPersonByTitle(principalsWithNames);
         mostCreditedPersonsByTitle.show();
-        // Limitation: The function above does not show all titles if the title did not exist within the principles
 
         System.out.println("Alternative titles");
         Dataset<Row> alternativeTitlesDs = getAlternativeTitles(top10TitlesDs, titleAkasDs);
-        alternativeTitlesDs.show();
-
+        alternativeTitlesDs.show(100, false);
     }
 
 }
