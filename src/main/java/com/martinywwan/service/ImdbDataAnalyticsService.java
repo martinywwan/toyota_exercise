@@ -45,7 +45,9 @@ public class ImdbDataAnalyticsService {
                 .withColumn("overallRating", overallRatingDefinition);
         avgNumOfVotesBroadcast.unpersist();
 
-        return titleWithOverallRatings.orderBy(desc("overallRating")).limit(10);
+        var titleRankings = titleWithOverallRatings.withColumn("titleRanking", row_number().over(
+                Window.orderBy(desc("overallRating"))));
+        return titleRankings.filter(col("titleRanking").$less$eq(10));
     }
 
     /**
@@ -99,6 +101,7 @@ public class ImdbDataAnalyticsService {
         Dataset<Row> top10TitlesDs = getTop10Titles(titleWithRatingsDs);
         System.out.println("Top 10 Titles");
         top10TitlesDs.show();
+
 
         // Convert top 10 title id's to an array
         Object[] top10TitlesArr = top10TitlesDs.select("tconst")
